@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>¡Tablas Mágicas! 🌟</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+<!-- Open Graph / WhatsApp / Redes Sociales -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kingolokum.github.io/Tablas-de-Multiplicar/">
+<meta property="og:title" content="¡Tablas Mágicas! 🌟 – Aprende multiplicaciones jugando">
+<meta property="og:description" content="Juego educativo interactivo para aprender las tablas de multiplicar. ¡4 niveles, puntos, vidas y mucha diversión!">
+<meta property="og:image" content="https://i.postimg.cc/cCVHqXKB/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="https://kingolokum.github.io/Tablas-de-Multiplicar/">
+<meta name="twitter:title" content="¡Tablas Mágicas! 🌟">
+<meta name="twitter:description" content="Aprende las tablas de multiplicar jugando. ¡4 niveles desbloqueables!">
+<meta name="twitter:image" content="https://i.postimg.cc/cCVHqXKB/og-image.png">
+<!-- /Open Graph -->
+<!-- Autor: Andrés Sánchez - Ingeniería de Sistemas -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #4FC3F7;
+    --sun: #FFD54F;
+    --grass: #66BB6A;
+    --coral: #FF7043;
+    --purple: #BA68C8;
+    --pink: #F06292;
+    --navy: #1A237E;
+    --cream: #FFFDE7;
+    --white: #FFFFFF;
+    --shadow: rgba(26,35,126,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(160deg, #B3E5FC 0%, #E1F5FE 40%, #F3E5F5 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Floating background stars */
+  .bg-star {
+    position: fixed;
+    font-size: 1.5rem;
+    opacity: 0.15;
+    animation: floatStar linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes floatStar {
+    0% { transform: translateY(110vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+    z-index: 10;
+    position: relative;
+  }
+  .screen.active { display: flex; }
+
+  /* ===== WELCOME SCREEN ===== */
+  .logo-area {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .logo-emoji {
+    font-size: 6rem;
+    display: block;
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
+  }
+
+  .logo-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    color: var(--navy);
+    text-shadow: 4px 4px 0 var(--sun), 6px 6px 0 rgba(26,35,126,0.2);
+    line-height: 1.1;
+    margin-top: 10px;
+  }
+
+  .logo-sub {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: #5C6BC0;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 25px;
+  }
+
+  .level-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    border: 4px solid transparent;
+    box-shadow: 0 6px 20px var(--shadow);
+    transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .level-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    border-radius: 20px;
+  }
+
+  .level-card.level-1 { border-color: var(--grass); }
+  .level-card.level-1::before { background: var(--grass); }
+  .level-card.level-2 { border-color: var(--sky); }
+  .level-card.level-2::before { background: var(--sky); }
+  .level-card.level-3 { border-color: var(--sun); border-color: #FFA726; }
+  .level-card.level-3::before { background: #FFA726; }
+  .level-card.level-4 { border-color: var(--purple); }
+  .level-card.level-4::before { background: var(--purple); }
+
+  .level-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+  }
+
+  .level-card:not(.locked):hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 12px 30px var(--shadow);
+  }
+
+  .level-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+  .level-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--navy);
+  }
+  .level-tables { font-size: 0.85rem; color: #666; font-weight: 700; margin-top: 4px; }
+  .lock-overlay { font-size: 1.5rem; position: absolute; top: 10px; right: 14px; }
+
+  .btn-primary {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: var(--white);
+    background: linear-gradient(135deg, #FF7043, #FF5722);
+    border: none;
+    border-radius: 50px;
+    padding: 16px 48px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #BF360C, 0 8px 20px rgba(255,112,67,0.4);
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 #BF360C, 0 12px 24px rgba(255,112,67,0.4);
+  }
+
+  .btn-primary:active {
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 #BF360C, 0 4px 12px rgba(255,112,67,0.3);
+  }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 14px 24px;
+    box-shadow: 0 4px 16px var(--shadow);
+    margin-bottom: 20px;
+  }
+
+  .stat-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9E9E9E;
+  }
+
+  .stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+
+  .lives-display { display: flex; gap: 6px; align-items: center; }
+  .heart { font-size: 1.8rem; transition: all 0.3s; }
+  .heart.lost { filter: grayscale(1); opacity: 0.3; transform: scale(0.8); }
+
+  .progress-bar-wrap {
+    flex: 1;
+    margin: 0 20px;
+  }
+
+  .progress-label { font-size: 0.7rem; font-weight: 800; color: #9E9E9E; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px; }
+
+  .progress-bar {
+    height: 14px;
+    background: #E3F2FD;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #42A5F5, #1565C0);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--white);
+    border-radius: 28px;
+    padding: clamp(24px, 4vw, 40px);
+    width: 100%;
+    box-shadow: 0 8px 32px var(--shadow);
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, var(--sun) 0%, transparent 70%);
+    opacity: 0.3;
+  }
+
+  .table-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #7C4DFF, #651FFF);
+    color: white;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    padding: 6px 18px;
+    border-radius: 50px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 8px rgba(124,77,255,0.3);
+  }
+
+  .question-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .question-sub {
+    font-size: 1rem;
+    color: #90A4AE;
+    font-weight: 700;
+  }
+
+  /* Options */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .option-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    color: var(--navy);
+    background: var(--white);
+    border: 4px solid #E3F2FD;
+    border-radius: 20px;
+    padding: 22px 16px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #B0BEC5, 0 6px 16px rgba(0,0,0,0.1);
+    transition: all 0.15s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    transform: translateY(-4px) scale(1.03);
+    border-color: var(--sky);
+    box-shadow: 0 9px 0 #81D4FA, 0 10px 20px rgba(79,195,247,0.3);
+  }
+
+  .option-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 #B0BEC5;
+  }
+
+  .option-btn.correct {
+    background: linear-gradient(135deg, #66BB6A, #43A047);
+    color: white;
+    border-color: #2E7D32;
+    box-shadow: 0 5px 0 #1B5E20, 0 8px 20px rgba(102,187,106,0.4);
+    animation: correctPop 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .option-btn.wrong {
+    background: linear-gradient(135deg, #EF5350, #E53935);
+    color: white;
+    border-color: #B71C1C;
+    box-shadow: 0 5px 0 #7F0000;
+    animation: shake 0.4s ease;
+  }
+
+  .option-btn:disabled { cursor: not-allowed; }
+
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  /* Feedback overlay */
+  .feedback-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feedback-overlay.show { opacity: 1; }
+
+  .feedback-emoji {
+    font-size: 8rem;
+    animation: feedbackPop 0.5s cubic-bezier(.34,1.56,.64,1);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+  }
+
+  .feedback-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3rem;
+    color: white;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    margin-top: 10px;
+    animation: feedbackPop 0.5s cubic-bezier(.34,1.56,.64,1) 0.1s both;
+  }
+
+  @keyframes feedbackPop {
+    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    top: -20px;
+    animation: confettiFall linear forwards;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== RESULT SCREEN ===== */
+  .result-card {
+    background: var(--white);
+    border-radius: 32px;
+    padding: 40px;
+    text-align: center;
+    max-width: 550px;
+    width: 100%;
+    box-shadow: 0 12px 48px var(--shadow);
+  }
+
+  .result-trophy { font-size: 6rem; animation: bounce 2s infinite; display: block; }
+  .result-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--navy);
+    margin: 16px 0 8px;
+  }
+  .result-sub { font-size: 1.1rem; color: #607D8B; font-weight: 700; margin-bottom: 24px; }
+
+  .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    background: #F5F5F5;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .result-stat { text-align: center; }
+  .result-stat-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: var(--navy);
+    display: block;
+  }
+  .result-stat-lbl { font-size: 0.8rem; color: #9E9E9E; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+  .btn-secondary {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--navy);
+    background: #F5F5F5;
+    border: 3px solid #E0E0E0;
+    border-radius: 50px;
+    padding: 13px 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 12px;
+  }
+  .btn-secondary:hover { background: #EEEEEE; transform: translateY(-2px); }
+
+  /* Errors review */
+  .errors-list { text-align: left; margin-top: 20px; }
+  .error-item {
+    background: #FFF8E1;
+    border-left: 4px solid var(--sun);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: var(--navy);
+    font-weight: 700;
+  }
+  .error-item span { color: var(--grass); }
+
+  /* Parent panel */
+  .parent-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #666;
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--shadow);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .parent-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px var(--shadow); }
+
+  /* Modal */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,35,126,0.6);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.show { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 28px;
+    padding: 36px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.3);
+  }
+  .modal-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--navy);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 2px dashed #EEE;
+  }
+  .progress-row:last-of-type { border: none; }
+  .progress-row-name { font-weight: 800; color: var(--navy); font-size: 1rem; }
+  .progress-row-val { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: #7C4DFF; }
+
+  .close-modal {
+    display: block;
+    margin: 20px auto 0;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--white);
+    background: var(--navy);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 32px;
+    cursor: pointer;
+  }
+
+  /* Game over */
+  .gameover-emoji { font-size: 5rem; animation: bounce 2s infinite; }
+  .gameover-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: var(--navy);
+    margin: 16px 0 8px;
+  }
+
+  /* Tablet landscape optimization */
+  @media (min-width: 768px) and (orientation: landscape) {
+    .game-screen-inner {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .question-side { flex: 1.2; }
+    .options-side { flex: 1; }
+    .options-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Small screens */
+  @media (max-width: 480px) {
+    .level-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .option-btn { font-size: 1.4rem; padding: 16px 12px; }
+  }
+
+  .btn-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+  /* ===== TIMER ===== */
+  .timer-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .timer-ring-wrap {
+    position: relative;
+    width: 52px;
+    height: 52px;
+  }
+  .timer-ring {
+    transform: rotate(-90deg);
+    width: 52px; height: 52px;
+  }
+  .timer-ring-bg { fill: none; stroke: #E3F2FD; stroke-width: 5; }
+  .timer-ring-fill {
+    fill: none;
+    stroke: #42A5F5;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 132;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+  }
+  .timer-ring-fill.urgent { stroke: #FF5722; }
+  .timer-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--navy);
+  }
+  .timer-number.urgent { color: #FF5722; }
+
+  /* ===== LEADERBOARD MODAL ===== */
+  .leaderboard-list { margin-top: 8px; }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    background: #F8F9FF;
+    border: 2px solid #E8EAFF;
+  }
+  .lb-row.gold   { background: #FFFDE7; border-color: #FFD54F; }
+  .lb-row.silver { background: #F5F5F5; border-color: #BDBDBD; }
+  .lb-row.bronze { background: #FFF3E0; border-color: #FFCC80; }
+  .lb-medal { font-size: 1.5rem; width: 32px; text-align: center; }
+  .lb-name  { font-weight: 800; color: var(--navy); font-size: 1rem; flex: 1; }
+  .lb-score { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: #7C4DFF; }
+  .lb-empty { text-align: center; color: #B0BEC5; font-weight: 700; padding: 20px 0; font-size: 0.95rem; }
+
+  /* ===== MOBILE IMPROVEMENTS ===== */
+  @media (max-width: 600px) {
+    body { overflow-y: auto; justify-content: flex-start; padding-top: 16px; }
+    .screen { padding: 12px; }
+    .game-header {
+      padding: 10px 12px;
+      gap: 6px;
+      flex-wrap: nowrap;
+    }
+    .stat-label { font-size: 0.6rem; }
+    .stat-value { font-size: 1.2rem; }
+    .heart { font-size: 1.3rem; }
+    .progress-bar-wrap { margin: 0 8px; }
+    .question-card { padding: 18px 16px; margin-bottom: 14px; border-radius: 20px; }
+    .question-text { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+    .option-btn { font-size: clamp(1.3rem, 5vw, 1.8rem); padding: 16px 10px; border-radius: 16px; }
+    .options-grid { gap: 10px; }
+    .result-card { padding: 24px 18px; border-radius: 24px; }
+    .result-trophy { font-size: 4rem; }
+    .result-title { font-size: 1.8rem; }
+    .result-stats { gap: 16px; padding: 14px; }
+    .result-stat-val { font-size: 2rem; }
+    .login-card { padding: 32px 20px; border-radius: 24px; }
+    .login-emoji { font-size: 4rem; }
+    .login-title { font-size: 2rem; }
+    .level-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .level-card { padding: 14px 10px; border-radius: 18px; }
+    .logo-title { font-size: 2.2rem; }
+    #session-bar { top: 8px; right: 8px; padding: 5px 5px 5px 12px; }
+    #session-bar span { font-size: 0.8rem; max-width: 90px; }
+    .parent-btn { padding: 8px 14px; font-size: 0.75rem; }
+    .modal-box { padding: 24px 18px; }
+  }
+  @media (max-width: 380px) {
+    .game-header { padding: 8px 10px; }
+    .progress-bar-wrap { display: none; }
+    .option-btn { padding: 13px 8px; }
+  }
+
+
+  /* ===== LOGIN SCREEN ===== */
+  .login-card {
+    background: var(--white);
+    border-radius: 32px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 12px 48px var(--shadow);
+  }
+
+  .login-emoji {
+    font-size: 5rem;
+    display: block;
+    animation: bounce 2s ease-in-out infinite;
+    margin-bottom: 12px;
+  }
+
+  .login-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+
+  .login-sub {
+    font-size: 1rem;
+    color: #607D8B;
+    font-weight: 700;
+    margin-bottom: 32px;
+  }
+
+  .name-input-wrap {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .name-input {
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--navy);
+    background: #F0F7FF;
+    border: 4px solid #B3D4F5;
+    border-radius: 20px;
+    padding: 16px 24px;
+    text-align: center;
+    outline: none;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .name-input:focus {
+    border-color: var(--sky);
+    background: #E3F2FD;
+    box-shadow: 0 0 0 4px rgba(79,195,247,0.2);
+  }
+
+  .name-input::placeholder {
+    color: #B0BEC5;
+    font-weight: 700;
+  }
+
+  .login-profiles {
+    margin-top: 24px;
+  }
+
+  .login-profiles-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #9E9E9E;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .profile-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .profile-chip {
+    background: #F3E5F5;
+    border: 2px solid #CE93D8;
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #7B1FA2;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .profile-chip:hover {
+    background: #CE93D8;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .user-greeting {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #7C4DFF;
+    text-align: center;
+    margin-bottom: 10px;
+    min-height: 1.5rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background stars -->
+<script>
+  const emojis = ['⭐','🌟','✨','💫','🔢','➕','✖️'];
+  for(let i=0;i<12;i++){
+    const s=document.createElement('div');
+    s.className='bg-star';
+    s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(8+Math.random()*14)+'s';
+    s.style.animationDelay=(-Math.random()*14)+'s';
+    s.style.fontSize=(0.8+Math.random()*1.5)+'rem';
+    document.body.appendChild(s);
+  }
+</script>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="screen active" id="screen-login">
+  <div class="login-card">
+    <span class="login-emoji">🌟</span>
+    <div class="login-title">¡Tablas Mágicas!</div>
+    <div class="login-sub">¿Cómo te llamas, pequeño/a matemático/a?</div>
+
+    <div class="name-input-wrap">
+      <input
+        class="name-input"
+        id="name-input"
+        type="text"
+        placeholder="Escribe tu nombre..."
+        maxlength="20"
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') doLogin()"
+        oninput="previewName(this.value)"
+      />
+    </div>
+
+    <div class="user-greeting" id="name-preview"></div>
+
+    <button class="btn-primary" onclick="doLogin()">¡A jugar! 🚀</button>
+
+    <div class="login-profiles" id="login-profiles" style="display:none">
+      <div class="login-profiles-title">👋 Jugadores anteriores</div>
+      <div class="profile-chips" id="profile-chips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WELCOME SCREEN ===== -->
+<div class="screen" id="screen-welcome">
+  <div class="logo-area">
+    <span class="logo-emoji">🌟</span>
+    <div class="logo-title">¡Tablas Mágicas!</div>
+    <div class="logo-sub" id="welcome-greeting">Aprende las multiplicaciones jugando</div>
+  </div>
+
+  <div class="level-grid" id="level-grid">
+    <div class="level-card level-1" onclick="startGame(0)">
+      <span class="logo-emoji" style="font-size:2rem">🌱</span>
+      <div class="level-name">Semilla</div>
+      <div class="level-tables">Tablas 1 – 2</div>
+    </div>
+    <div class="level-card level-2" id="card-1">
+      <span class="lock-overlay" id="lock-1">🔒</span>
+      <span class="logo-emoji" style="font-size:2rem">🌿</span>
+      <div class="level-name">Árbol</div>
+      <div class="level-tables">Tablas 3 – 5</div>
+    </div>
+    <div class="level-card level-3" id="card-2">
+      <span class="lock-overlay" id="lock-2">🔒</span>
+      <span class="logo-emoji" style="font-size:2rem">🌻</span>
+      <div class="level-name">Estrella</div>
+      <div class="level-tables">Tablas 6 – 8</div>
+    </div>
+    <div class="level-card level-4" id="card-3">
+      <span class="lock-overlay" id="lock-3">🔒</span>
+      <span class="logo-emoji" style="font-size:2rem">🚀</span>
+      <div class="level-name">Cohete</div>
+      <div class="level-tables">Tablas 9 – 10</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen" id="screen-game">
+  <div class="game-header">
+    <div class="stat-block">
+      <span class="stat-label">Nivel</span>
+      <span class="stat-value" id="hdr-level">🌱</span>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-label">Progreso</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="stat-block">
+      <span class="stat-label">Puntos</span>
+      <span class="stat-value" id="hdr-score">0</span>
+    </div>
+
+    <div class="stat-block">
+      <span class="stat-label">Vidas</span>
+      <div class="lives-display" id="lives-display"></div>
+    </div>
+
+    <div class="timer-wrap">
+      <span class="stat-label">Tiempo</span>
+      <div class="timer-ring-wrap">
+        <svg class="timer-ring" viewBox="0 0 44 44">
+          <circle class="timer-ring-bg" cx="22" cy="22" r="18"/>
+          <circle class="timer-ring-fill" id="timer-ring-fill" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="timer-number" id="timer-number">15</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="game-screen-inner">
+    <div class="question-card" id="question-card">
+      <div class="table-badge" id="table-badge">Tabla del 2</div>
+      <div class="question-text" id="question-text">2 × 3 = ?</div>
+      <div class="question-sub">¿Cuál es el resultado?</div>
+    </div>
+
+    <div class="options-grid" id="options-grid"></div>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div class="screen" id="screen-result">
+  <div class="result-card">
+    <span class="result-trophy" id="result-trophy">🏆</span>
+    <div class="result-title" id="result-title">¡Nivel completado!</div>
+    <div class="result-sub" id="result-sub">¡Eres increíble!</div>
+    <div class="result-stats">
+      <div class="result-stat">
+        <span class="result-stat-val" id="res-score">0</span>
+        <span class="result-stat-lbl">Puntos</span>
+      </div>
+      <div class="result-stat">
+        <span class="result-stat-val" id="res-correct">0</span>
+        <span class="result-stat-lbl">Correctas</span>
+      </div>
+      <div class="result-stat">
+        <span class="result-stat-val" id="res-accuracy">0%</span>
+        <span class="result-stat-lbl">Precisión</span>
+      </div>
+    </div>
+
+    <div id="errors-section" class="errors-list"></div>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn-primary" id="btn-continue" onclick="continueGame()">¡Siguiente nivel! 🚀</button>
+      <button class="btn-secondary" onclick="goHome()">🏠 Inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAMEOVER SCREEN ===== -->
+<div class="screen" id="screen-gameover">
+  <div class="result-card">
+    <span class="gameover-emoji">😢</span>
+    <div class="gameover-title">¡Se acabaron las vidas!</div>
+    <div class="result-sub">¡Pero puedes intentarlo de nuevo!</div>
+    <div class="result-stats">
+      <div class="result-stat">
+        <span class="result-stat-val" id="go-score">0</span>
+        <span class="result-stat-lbl">Puntos</span>
+      </div>
+      <div class="result-stat">
+        <span class="result-stat-val" id="go-correct">0</span>
+        <span class="result-stat-lbl">Correctas</span>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn-primary" id="btn-retry" onclick="retryLevel()">🔄 ¡Reintentar!</button>
+      <button class="btn-secondary" onclick="goHome()">🏠 Inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback overlay -->
+<div class="feedback-overlay" id="feedback-overlay">
+  <span class="feedback-emoji" id="feedback-emoji">🎉</span>
+  <span class="feedback-text" id="feedback-text">¡Correcto!</span>
+</div>
+
+<!-- Parent modal -->
+<div style="position:fixed;bottom:20px;left:20px;font-family:'Nunito',sans-serif;font-size:0.75rem;color:#90A4AE;font-weight:700;z-index:50;background:rgba(255,255,255,0.7);padding:6px 14px;border-radius:50px;backdrop-filter:blur(4px)">
+  👨‍💻 Andrés Sánchez<br>Ing. Sistemas
+</div>
+<div id="session-bar" style="display:none;position:fixed;top:16px;right:16px;z-index:300;align-items:center;gap:8px;background:rgba(255,255,255,0.92);border-radius:50px;padding:7px 7px 7px 16px;box-shadow:0 4px 14px rgba(26,35,126,0.15);backdrop-filter:blur(6px);font-family:'Nunito',sans-serif">
+  <span id="session-name" style="font-weight:800;font-size:0.9rem;color:#1A237E;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+  <button onclick="cerrarSesion()" style="background:linear-gradient(135deg,#FF7043,#FF5722);border:none;border-radius:50px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.8rem;color:white;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(255,87,34,0.35)" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">🚪 Cerrar sesión</button>
+</div>
+<button class="parent-btn" onclick="showParentPanel()">👨‍👩‍👧 Padres / Maestros</button>
+
+<div class="modal-bg" id="parent-modal">
+  <div class="modal-box">
+    <div class="modal-title">📊 Panel de Progreso</div>
+    <div id="parent-stats"></div>
+    <button class="close-modal" onclick="closeParentPanel()">Cerrar</button>
+  </div>
+</div>
+
+<!-- Leaderboard button -->
+<button class="parent-btn" style="right:auto;left:20px;bottom:60px" onclick="showLeaderboard()">🏆 Mejores puntajes</button>
+
+<!-- Leaderboard modal -->
+<div class="modal-bg" id="lb-modal">
+  <div class="modal-box">
+    <div class="modal-title">🏆 Top 5 Jugadores</div>
+    <div class="leaderboard-list" id="lb-list"></div>
+    <button class="close-modal" onclick="document.getElementById('lb-modal').classList.remove('show')">Cerrar</button>
+  </div>
+</div>
+
+<script>
+// ===== LOGIN =====
+let currentUser = '';
+
+function getProfiles(){
+  return JSON.parse(localStorage.getItem('tablasmagicas_profiles') || '[]');
+}
+
+function saveProfile(name){
+  let profiles = getProfiles();
+  if(!profiles.includes(name)) {
+    profiles.unshift(name);
+    if(profiles.length > 5) profiles = profiles.slice(0,5);
+    localStorage.setItem('tablasmagicas_profiles', JSON.stringify(profiles));
+  }
+}
+
+function previewName(val){
+  const preview = document.getElementById('name-preview');
+  const name = val.trim();
+  if(name.length > 0){
+    preview.textContent = `¡Hola, ${name}! 👋`;
+  } else {
+    preview.textContent = '';
+  }
+}
+
+function doLogin(){
+  const input = document.getElementById('name-input');
+  const name = input.value.trim();
+  if(!name){
+    input.style.borderColor = '#FF7043';
+    input.placeholder = '¡Necesitas un nombre! 😊';
+    setTimeout(()=>{
+      input.style.borderColor = '#B3D4F5';
+      input.placeholder = 'Escribe tu nombre...';
+    }, 1500);
+    return;
+  }
+  currentUser = name;
+  saveProfile(name);
+  loadProgress();
+  document.getElementById('welcome-greeting').textContent = `¡Hola, ${name}! 🌟 Elige tu nivel`;
+  // Show session bar
+  const bar = document.getElementById('session-bar');
+  bar.style.display = 'flex';
+  document.getElementById('session-name').textContent = '👤 ' + name;
+  showScreen('welcome');
+}
+
+function cerrarSesion(){
+  currentUser = '';
+  document.getElementById('name-input').value = '';
+  document.getElementById('name-preview').textContent = '';
+  document.getElementById('session-bar').style.display = 'none';
+  renderProfiles();
+  showScreen('login');
+}
+
+// Keep changeUser as alias for backward compat
+function changeUser(){ cerrarSesion(); }
+
+function selectProfile(name){
+  document.getElementById('name-input').value = name;
+  previewName(name);
+}
+
+function renderProfiles(){
+  const profiles = getProfiles();
+  const section = document.getElementById('login-profiles');
+  const chips = document.getElementById('profile-chips');
+  if(profiles.length > 0){
+    section.style.display = 'block';
+    chips.innerHTML = profiles.map(p =>
+      `<div class="profile-chip" onclick="selectProfile('${p.replace(/'/g,"\\'")}')">👤 ${p}</div>`
+    ).join('');
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+// ===== GAME STATE =====
+const LEVELS = [
+  { name:'🌱 Semilla', tables:[1,2], emoji:'🌱', questions:10 },
+  { name:'🌿 Árbol',   tables:[3,4,5], emoji:'🌿', questions:12 },
+  { name:'🌻 Estrella', tables:[6,7,8], emoji:'🌻', questions:14 },
+  { name:'🚀 Cohete',  tables:[9,10], emoji:'🚀', questions:16 }
+];
+
+const CORRECT_PHRASES = ['¡Excelente!','¡Genial!','¡Muy bien!','¡Perfecto!','¡Increíble!','¡Bravo!','¡Súper!'];
+const WRONG_PHRASES = ['¡Casi!','¡Inténtalo!','¡Sigue así!','No te rindas'];
+
+let state = {
+  currentLevel: 0,
+  score: 0,
+  lives: 3,
+  questionsAsked: 0,
+  questionsCorrect: 0,
+  errors: [],
+  currentAnswer: 0,
+  answering: false,
+  unlockedLevels: [true, false, false, false],
+  totalScoreAllTime: 0,
+  levelScores: [0, 0, 0, 0],
+  levelCompleted: [false, false, false, false],
+  timerInterval: null,
+  timeLeft: 15
+};
+
+// ===== TIMER =====
+const TIMER_SECONDS = 15;
+const CIRCUMFERENCE = 2 * Math.PI * 18; // r=18 → ~113.1
+
+function startTimer() {
+  clearInterval(state.timerInterval);
+  state.timeLeft = TIMER_SECONDS;
+  updateTimerUI();
+  state.timerInterval = setInterval(() => {
+    state.timeLeft--;
+    updateTimerUI();
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
+      if (!state.answering) {
+        // Time up — count as wrong
+        state.answering = true;
+        state.questionsAsked++;
+        state.lives--;
+        state.errors.push({q: state.currentQuestion ? `${state.currentQuestion.table} × ${state.currentQuestion.multiplier}` : '?', correct: state.currentAnswer, given: '⏱️'});
+        document.querySelectorAll('.option-btn').forEach(b => {
+          b.disabled = true;
+          if (parseInt(b.textContent) === state.currentAnswer) b.classList.add('correct');
+        });
+        playSound(false);
+        updateHeader();
+        if (state.lives <= 0) {
+          setTimeout(() => { endLevel(false); }, 1000);
+        } else {
+          setTimeout(() => { nextQuestion(); }, 1200);
+        }
+      }
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+}
+
+function updateTimerUI() {
+  const el = document.getElementById('timer-number');
+  const ring = document.getElementById('timer-ring-fill');
+  if (!el || !ring) return;
+  el.textContent = state.timeLeft;
+  const offset = CIRCUMFERENCE * (1 - state.timeLeft / TIMER_SECONDS);
+  ring.style.strokeDashoffset = offset;
+  const urgent = state.timeLeft <= 5;
+  el.className = 'timer-number' + (urgent ? ' urgent' : '');
+  ring.className = 'timer-ring-fill' + (urgent ? ' urgent' : '');
+}
+
+// ===== LEADERBOARD =====
+function getLeaderboard() {
+  return JSON.parse(localStorage.getItem('tablasmagicas_leaderboard') || '[]');
+}
+
+function updateLeaderboard(name, score) {
+  let lb = getLeaderboard();
+  const existing = lb.findIndex(e => e.name === name);
+  if (existing >= 0) {
+    if (score > lb[existing].score) lb[existing].score = score;
+  } else {
+    lb.push({ name, score });
+  }
+  lb.sort((a, b) => b.score - a.score);
+  lb = lb.slice(0, 5);
+  localStorage.setItem('tablasmagicas_leaderboard', JSON.stringify(lb));
+}
+
+function showLeaderboard() {
+  const lb = getLeaderboard();
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const classes = ['gold','silver','bronze','',''];
+  let html = '';
+  if (lb.length === 0) {
+    html = '<div class="lb-empty">¡Aún no hay puntajes!<br>Juega para aparecer aquí 🎮</div>';
+  } else {
+    lb.forEach((e, i) => {
+      html += `<div class="lb-row ${classes[i]}">
+        <span class="lb-medal">${medals[i]}</span>
+        <span class="lb-name">${e.name}</span>
+        <span class="lb-score">⭐ ${e.score}</span>
+      </div>`;
+    });
+  }
+  document.getElementById('lb-list').innerHTML = html;
+  document.getElementById('lb-modal').classList.add('show');
+}
+
+// Load from localStorage
+function loadProgress(){
+  const key = 'tablasmagicas_' + (currentUser || 'default');
+  const saved = localStorage.getItem(key);
+  if(saved){
+    const p = JSON.parse(saved);
+    state.unlockedLevels = p.unlockedLevels || [true,false,false,false];
+    state.levelScores = p.levelScores || [0,0,0,0];
+    state.levelCompleted = p.levelCompleted || [false,false,false,false];
+    state.totalScoreAllTime = p.totalScoreAllTime || 0;
+  } else {
+    state.unlockedLevels = [true,false,false,false];
+    state.levelScores = [0,0,0,0];
+    state.levelCompleted = [false,false,false,false];
+    state.totalScoreAllTime = 0;
+  }
+  updateLevelCards();
+}
+
+function saveProgress(){
+  const key = 'tablasmagicas_' + (currentUser || 'default');
+  localStorage.setItem(key, JSON.stringify({
+    unlockedLevels: state.unlockedLevels,
+    levelScores: state.levelScores,
+    levelCompleted: state.levelCompleted,
+    totalScoreAllTime: state.totalScoreAllTime
+  }));
+}
+
+function updateLevelCards(){
+  for(let i=1;i<4;i++){
+    const card = document.getElementById('card-'+(i));
+    const lock = document.getElementById('lock-'+(i));
+    if(state.unlockedLevels[i]){
+      card.classList.remove('locked');
+      if(lock) lock.style.display='none';
+      card.onclick = ()=>startGame(i);
+    } else {
+      card.classList.add('locked');
+      if(lock) lock.style.display='block';
+      card.onclick = ()=>showLocked();
+    }
+  }
+}
+
+function showLocked(){
+  // Quick shake animation feedback
+  const msg = document.createElement('div');
+  msg.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1A237E;color:white;font-family:Fredoka One,cursive;font-size:1.2rem;padding:14px 28px;border-radius:50px;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,0.3)';
+  msg.textContent='🔒 ¡Completa el nivel anterior primero!';
+  document.body.appendChild(msg);
+  setTimeout(()=>msg.remove(), 2000);
+}
+
+// ===== SHOW SCREEN =====
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+// ===== START GAME =====
+function startGame(levelIdx){
+  state.currentLevel = levelIdx;
+  state.score = 0;
+  state.lives = 3;
+  state.questionsAsked = 0;
+  state.questionsCorrect = 0;
+  state.errors = [];
+  state.answering = false;
+
+  stopTimer();
+  updateHeader();
+  showScreen('game');
+  nextQuestion();
+}
+
+function retryLevel(){
+  startGame(state.currentLevel);
+}
+
+// ===== QUESTION LOGIC =====
+function generateQuestion(){
+  const level = LEVELS[state.currentLevel];
+  const table = level.tables[Math.floor(Math.random()*level.tables.length)];
+  const multiplier = Math.floor(Math.random()*10)+1;
+  const answer = table * multiplier;
+  return { table, multiplier, answer };
+}
+
+function generateOptions(correctAnswer){
+  const opts = new Set([correctAnswer]);
+  while(opts.size < 4){
+    let wrong = correctAnswer + (Math.floor(Math.random()*10)-5);
+    if(wrong < 0) wrong = correctAnswer + Math.floor(Math.random()*6)+1;
+    if(wrong !== correctAnswer && wrong >= 0) opts.add(wrong);
+  }
+  return shuffle([...opts]);
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function nextQuestion(){
+  const level = LEVELS[state.currentLevel];
+  if(state.questionsAsked >= level.questions){
+    endLevel(true);
+    return;
+  }
+
+  const q = generateQuestion();
+  state.currentAnswer = q.answer;
+  state.currentQuestion = q;
+  state.answering = false;
+
+  document.getElementById('table-badge').textContent = `Tabla del ${q.table}`;
+  document.getElementById('question-text').textContent = `${q.table} × ${q.multiplier} = ?`;
+
+  const opts = generateOptions(q.answer);
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = ()=>selectAnswer(opt, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Animate question in
+  const qcard = document.getElementById('question-card');
+  qcard.style.animation = 'none';
+  qcard.offsetHeight;
+  qcard.style.animation = 'correctPop 0.35s cubic-bezier(.34,1.56,.64,1)';
+
+  updateHeader();
+  startTimer();
+}
+
+function selectAnswer(chosen, btn, q){
+  if(state.answering) return;
+  state.answering = true;
+  state.questionsAsked++;
+
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b=>b.disabled=true);
+
+  if(chosen === q.answer){
+    stopTimer();
+    btn.classList.add('correct');
+    state.questionsCorrect++;
+    // Bonus: +5 if answered with >8s left, +2 if >4s
+    const bonus = state.timeLeft > 8 ? 5 : state.timeLeft > 4 ? 2 : 0;
+    state.score += 10 + bonus;
+    showFeedback(true);
+    spawnConfetti();
+    playSound(true);
+    setTimeout(()=>{ hideFeedback(); nextQuestion(); }, 900);
+  } else {
+    stopTimer();
+    btn.classList.add('wrong');
+    // Highlight correct
+    allBtns.forEach(b=>{ if(parseInt(b.textContent)===q.answer) b.classList.add('correct'); });
+    state.lives--;
+    state.errors.push({q:`${q.table} × ${q.multiplier}`, correct: q.answer, given: chosen});
+    showFeedback(false);
+    playSound(false);
+    updateHeader();
+    if(state.lives <= 0){
+      setTimeout(()=>{ hideFeedback(); endLevel(false); }, 1000);
+    } else {
+      setTimeout(()=>{ hideFeedback(); nextQuestion(); }, 1200);
+    }
+  }
+}
+
+// ===== FEEDBACK =====
+function showFeedback(correct){
+  const overlay = document.getElementById('feedback-overlay');
+  const emoji = document.getElementById('feedback-emoji');
+  const text = document.getElementById('feedback-text');
+  if(correct){
+    const phrases = CORRECT_PHRASES;
+    emoji.textContent = ['🎉','⭐','🌟','🏆','✨'][Math.floor(Math.random()*5)];
+    text.textContent = phrases[Math.floor(Math.random()*phrases.length)];
+    overlay.style.background = 'rgba(76,175,80,0.7)';
+  } else {
+    const phrases = WRONG_PHRASES;
+    emoji.textContent = ['😅','💪','🤔','😮'][Math.floor(Math.random()*4)];
+    text.textContent = phrases[Math.floor(Math.random()*phrases.length)];
+    overlay.style.background = 'rgba(239,83,80,0.7)';
+  }
+  overlay.classList.add('show');
+}
+
+function hideFeedback(){
+  document.getElementById('feedback-overlay').classList.remove('show');
+}
+
+// ===== CONFETTI =====
+function spawnConfetti(){
+  const colors=['#FFD54F','#66BB6A','#42A5F5','#FF7043','#BA68C8','#F06292','#4FC3F7'];
+  for(let i=0;i<28;i++){
+    const c=document.createElement('div');
+    c.className='confetti-piece';
+    c.style.left=(Math.random()*100)+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration=(1+Math.random()*1.5)+'s';
+    c.style.animationDelay=(Math.random()*0.5)+'s';
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    c.style.borderRadius=Math.random()>0.5?'50%':'3px';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),2500);
+  }
+}
+
+// ===== SOUND =====
+function playSound(correct){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if(correct){
+      osc.frequency.setValueAtTime(523,ctx.currentTime);
+      osc.frequency.setValueAtTime(659,ctx.currentTime+0.1);
+      osc.frequency.setValueAtTime(784,ctx.currentTime+0.2);
+    } else {
+      osc.frequency.setValueAtTime(300,ctx.currentTime);
+      osc.frequency.setValueAtTime(200,ctx.currentTime+0.15);
+    }
+    gain.gain.setValueAtTime(0.2,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime+0.4);
+  } catch(e){}
+}
+
+// ===== HEADER =====
+function updateHeader(){
+  const level = LEVELS[state.currentLevel];
+  document.getElementById('hdr-level').textContent = level.emoji;
+  document.getElementById('hdr-score').textContent = state.score;
+
+  const livesEl = document.getElementById('lives-display');
+  livesEl.innerHTML='';
+  for(let i=0;i<3;i++){
+    const h=document.createElement('span');
+    h.className='heart'+(i>=state.lives?' lost':'');
+    h.textContent='❤️';
+    livesEl.appendChild(h);
+  }
+
+  const pct = (state.questionsAsked/LEVELS[state.currentLevel].questions)*100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+}
+
+// ===== END LEVEL =====
+function endLevel(won){
+  const level = LEVELS[state.currentLevel];
+  if(won){
+    // Unlock next level
+    if(state.currentLevel < 3){
+      state.unlockedLevels[state.currentLevel+1]=true;
+    }
+    state.levelCompleted[state.currentLevel]=true;
+    state.levelScores[state.currentLevel]=Math.max(state.score, state.levelScores[state.currentLevel]);
+    state.totalScoreAllTime += state.score;
+    saveProgress();
+    if(currentUser) updateLeaderboard(currentUser, state.totalScoreAllTime);
+
+    spawnConfetti(); spawnConfetti();
+
+    document.getElementById('result-trophy').textContent='🏆';
+    document.getElementById('result-title').textContent='¡Nivel completado!';
+    const msgs=['¡Eres una estrella!','¡Increíble trabajo!','¡Matemático genial!','¡Sigue brillando!'];
+    document.getElementById('result-sub').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('res-score').textContent=state.score;
+    document.getElementById('res-correct').textContent=state.questionsCorrect;
+    const acc=state.questionsAsked>0?Math.round(state.questionsCorrect/state.questionsAsked*100):0;
+    document.getElementById('res-accuracy').textContent=acc+'%';
+
+    // Show errors
+    const errSec=document.getElementById('errors-section');
+    if(state.errors.length>0){
+      errSec.innerHTML='<div style="font-weight:800;color:#546E7A;margin-bottom:10px;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;">📝 Para repasar:</div>';
+      state.errors.forEach(e=>{
+        errSec.innerHTML+=`<div class="error-item">${e.q} = <span>${e.correct}</span> (pusiste ${e.given})</div>`;
+      });
+    } else {
+      errSec.innerHTML='<div style="text-align:center;font-size:1rem;color:#66BB6A;font-weight:800;margin:10px 0">🎯 ¡Sin errores! ¡Perfecto!</div>';
+    }
+
+    const btnCont=document.getElementById('btn-continue');
+    if(state.currentLevel>=3){
+      btnCont.textContent='🏠 Inicio';
+      btnCont.onclick=goHome;
+    } else {
+      btnCont.textContent='¡Siguiente nivel! 🚀';
+      btnCont.onclick=continueGame;
+    }
+    showScreen('result');
+  } else {
+    document.getElementById('go-score').textContent=state.score;
+    document.getElementById('go-correct').textContent=state.questionsCorrect;
+    showScreen('gameover');
+  }
+}
+
+function continueGame(){
+  if(state.currentLevel<3){
+    state.currentLevel++;
+    startGame(state.currentLevel);
+  } else {
+    goHome();
+  }
+}
+
+function goHome(){
+  stopTimer();
+  showScreen('welcome');
+  updateLevelCards();
+}
+
+// ===== PARENT PANEL =====
+function showParentPanel(){
+  const el=document.getElementById('parent-stats');
+  let html=`<div class="progress-row" style="margin-bottom:10px"><div class="progress-row-name" style="font-size:1.1rem">👤 Jugador</div><div class="progress-row-val" style="font-size:1.3rem;color:#FF7043">${currentUser || '—'}</div></div>`;
+  LEVELS.forEach((lv,i)=>{
+    const unlocked=state.unlockedLevels[i];
+    const completed=state.levelCompleted[i];
+    const score=state.levelScores[i];
+    html+=`<div class="progress-row">
+      <div class="progress-row-name">${lv.name} <span style="font-size:0.8rem;color:#999">(${lv.tables.join(', ')})</span></div>
+      <div class="progress-row-val">${!unlocked?'🔒 Bloqueado':completed?'✅ '+score+' pts':'🎮 En progreso'}</div>
+    </div>`;
+  });
+  html+=`<div class="progress-row" style="margin-top:10px">
+    <div class="progress-row-name" style="font-size:1.1rem">Total puntos</div>
+    <div class="progress-row-val" style="font-size:1.5rem">⭐ ${state.totalScoreAllTime}</div>
+  </div>`;
+  el.innerHTML=html;
+  document.getElementById('parent-modal').classList.add('show');
+}
+
+function closeParentPanel(){
+  document.getElementById('parent-modal').classList.remove('show');
+}
+
+// ===== INIT =====
+renderProfiles();
+// Screen already starts on login (active class on screen-login in HTML)
+</script>
+</body>
+</html>
